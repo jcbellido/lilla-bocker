@@ -1,0 +1,16 @@
+[package]
+name = "flipbook"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# perhaps `clap` to communicate with this
+# perhaps even egui (in case I want to build a frontend for this)
+anyhow = "1.0.71"
+base64 = "0.21.0"
+
+serde = { version = "1.0.162", features = ["derive"] }
+serde_json = "1.0.96"
+
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.16" }

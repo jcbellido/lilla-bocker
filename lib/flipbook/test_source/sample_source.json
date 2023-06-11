@@ -1,0 +1,63 @@
+{
+    "version": 1,
+    "languages": [
+        "en",
+        "es"
+    ],
+    "default_language": "en",
+    "title": {
+        "en": {
+            "text": "My title"
+        },
+        "es": {
+            "text": "Mi titulo molón"
+        }
+    },
+    "summary": {
+        "en": {
+            "text": "My very pleasant summary of this book"
+        },
+        "es": {
+            "text": "Un resumen guapísimo del libro"
+        }
+    },
+    "miniature": {
+        "path": "../../backend/sample_assets_00/00_miniature.jpg"
+    },
+    "pages": [
+        {
+            "background": {
+                "path": "../../backend/sample_assets_00/00.jpg"
+            }
+        },
+        {
+            "background": {
+                "path": "../../backend/sample_assets_00/01.jpg"
+            },
+            "text": {
+                "en": {
+                    "text": "01 - text on page two",
+                    "audio": {
+                        "path": "../../backend/sample_assets_00/sample-3-96.ogg"
+                    }
+                },
+                "es": {
+                    "text": "01 - letricas en página dos"
+                }
+            }
+        },
+        {
+            "background": {
+                "path": "../../backend/sample_assets_00/02.jpg"
+            },
+            "text": {
+                "en": {
+                    "text": "text on page two",
+                    "audio": {
+                        "path": "../../backend/sample_assets_00/sample-5-96.ogg"
+                    }
+                }
+            }
+        }
+    ]
+}
