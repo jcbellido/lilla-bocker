@@ -19,7 +19,13 @@ fn main() -> Result<()> {
     if args.tts {
         let output_path = std::path::Path::new(&args.path).join("tts");
         let output_path = output_path.to_str().unwrap();
-        speech::generate_all_languages(output_path)?;
+
+        if let Some(selected_lang) = &args.lang {
+            tracing::info!("Target lang specified {:#?}", selected_lang);
+            speech::generate_language(selected_lang.clone(), output_path)?;
+        } else {
+            speech::generate_all_languages(output_path)?;
+        }
     }
 
     Ok(())
