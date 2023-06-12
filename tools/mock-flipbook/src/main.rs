@@ -3,6 +3,7 @@ use clap::Parser;
 
 // use flipbook;
 mod args;
+mod image;
 mod speech;
 
 use args::Args;
