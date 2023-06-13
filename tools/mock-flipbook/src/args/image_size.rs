@@ -4,8 +4,8 @@ use clap::error::ErrorKind;
 
 #[derive(Clone, Debug)]
 pub struct ImageSize {
-    width: u16,
-    height: u16,
+    pub width: u16,
+    pub height: u16,
 }
 
 impl Display for ImageSize {

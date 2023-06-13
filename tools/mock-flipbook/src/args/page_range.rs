@@ -4,8 +4,8 @@ use clap::error::ErrorKind;
 
 #[derive(Clone, Debug)]
 pub struct PageRange {
-    min: u16,
-    max: u16,
+    pub min: u16,
+    pub max: u16,
 }
 
 impl Display for PageRange {

@@ -29,5 +29,8 @@ fn main() -> Result<()> {
         }
     }
 
+    let output_path = std::path::Path::new(&args.path).join("images");
+    image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
+
     Ok(())
 }

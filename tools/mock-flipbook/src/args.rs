@@ -3,8 +3,8 @@ use clap::{Parser, ValueEnum};
 mod image_size;
 mod page_range;
 
-use self::image_size::ImageSize;
-use self::page_range::PageRange;
+pub use self::image_size::ImageSize;
+pub use self::page_range::PageRange;
 
 #[derive(Clone, Debug, ValueEnum)]
 pub enum Language {
