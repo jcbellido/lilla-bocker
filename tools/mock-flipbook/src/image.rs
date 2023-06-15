@@ -35,9 +35,6 @@ pub fn build_images(path: &str, image_size: &ImageSize, page_range: &PageRange) 
 
     nannou::app(model).update(update).run();
 
-    // I need to execute this a number of times, I could use the update function to "randomize" the looks
-    // When the max pages is finally reached, I could just "quit" and that should be it, no?
-
     Ok(())
 }
 
@@ -45,6 +42,7 @@ pub fn build_images(path: &str, image_size: &ImageSize, page_range: &PageRange) 
 struct Model {
     pub extra: NannouExtraParameters,
     pub _window: window::Id,
+    pub update_number: usize,
 }
 
 fn model(app: &App) -> Model {
@@ -63,16 +61,21 @@ fn model(app: &App) -> Model {
         .build()
         .expect("error creating Nannou's window");
 
-    Model { extra, _window }
+    Model {
+        extra,
+        _window,
+        update_number: 0,
+    }
 }
 
-fn update(_app: &App, _model: &mut Model, _update: Update) {}
-
-fn my_view(app: &App, model: &Model, frame: Frame) {
-    if frame.nth() >= model.extra.page_range.max as u64 {
+fn update(app: &App, model: &mut Model, _update: Update) {
+    model.update_number += 1;
+    if model.update_number > model.extra.page_range.max as usize {
         app.quit();
     }
+}
 
+fn my_view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
 
     draw.background().color(CORNFLOWERBLUE);
