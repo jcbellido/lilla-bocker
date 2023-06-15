@@ -32,6 +32,12 @@ impl FromStr for PageRange {
             let Ok(max) = u16::from_str(parts[1].trim()) else {
                 return Err(clap::Error::new(ErrorKind::InvalidValue));
             };
+            if min == max && min == 0 {
+                return Err(clap::Error::new(ErrorKind::InvalidValue));
+            }
+            if max < min {
+                return Err(clap::Error::new(ErrorKind::InvalidValue));
+            }
             Ok(PageRange { min, max })
         } else {
             Err(clap::Error::new(ErrorKind::InvalidValue))
