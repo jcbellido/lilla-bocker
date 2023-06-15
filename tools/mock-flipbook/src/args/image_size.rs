@@ -17,8 +17,8 @@ impl Display for ImageSize {
 impl Default for ImageSize {
     fn default() -> Self {
         Self {
-            width: 1080,
-            height: 1920,
+            width: 1920,
+            height: 1080,
         }
     }
 }

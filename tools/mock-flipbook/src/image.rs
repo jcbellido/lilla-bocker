@@ -55,6 +55,10 @@ fn model(app: &App) -> Model {
 
     let _window = app
         .new_window()
+        .size(
+            extra.image_size.width as u32,
+            extra.image_size.height as u32,
+        )
         .view(my_view)
         .build()
         .expect("error creating Nannou's window");
