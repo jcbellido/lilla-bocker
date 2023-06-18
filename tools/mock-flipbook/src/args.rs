@@ -20,7 +20,15 @@ pub struct Args {
     #[arg(short, long)]
     pub path: String,
 
-    /// Add this flag to invoke the generation of TTS (will appear under {path}/tts)
+    /// generate the fake images (will appear under {path}/images)
+    #[arg(short, long, default_value_t = false)]
+    pub image: bool,
+
+    /// dump to files the strings used in the TTS (will appear under {path}/texts)
+    #[arg(short, long, default_value_t = false)]
+    pub string: bool,
+
+    /// invoke the generation of TTS (will appear under {path}/tts)
     #[arg(short, long, default_value_t = false)]
     pub tts: bool,
 

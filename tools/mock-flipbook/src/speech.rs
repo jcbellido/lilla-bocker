@@ -13,10 +13,9 @@ use std::process::Command;
 use anyhow::Result;
 
 use crate::args::Language;
-
-mod english;
-mod spanish;
-mod swedish;
+use crate::text::english;
+use crate::text::spanish;
+use crate::text::swedish;
 
 #[cfg(not(target_os = "macos"))]
 fn tts(language: Language, path: &str) -> Result<()> {
