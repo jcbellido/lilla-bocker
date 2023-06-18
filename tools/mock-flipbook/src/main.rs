@@ -3,7 +3,9 @@ use clap::Parser;
 
 // use flipbook;
 mod args;
+mod image;
 mod speech;
+mod text;
 
 use args::Args;
 
@@ -28,5 +30,15 @@ fn main() -> Result<()> {
         }
     }
 
+    if args.string {
+        let output_path = std::path::Path::new(&args.path).join("texts");
+        text::generate_texts(output_path.to_str().unwrap())?;
+    }
+
+    if args.image {
+        let output_path = std::path::Path::new(&args.path).join("images");
+        image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
+    }
+    tracing::info!("Finished, assets generated under `{}`", args.path);
     Ok(())
 }

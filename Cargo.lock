@@ -1306,6 +1306,8 @@ dependencies = [
  "fake",
  "flipbook",
  "nannou",
+ "serde",
+ "serde_json",
  "tracing",
  "tracing-subscriber",
 ]
