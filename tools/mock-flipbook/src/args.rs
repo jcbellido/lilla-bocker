@@ -43,4 +43,9 @@ pub struct Args {
     /// Specify the sizes of the mock images you want, ie: "640,480"
     #[arg(long, default_value_t = ImageSize::default())]
     pub image_size: ImageSize,
+
+    // Compilation options
+    /// How many books do you want to generate with the assets inside {path}?
+    #[arg(short, long, default_value_t = 0)]
+    pub num_flipbooks: u32,
 }
