@@ -2,6 +2,7 @@ use anyhow::Result;
 use clap::Parser;
 
 mod args;
+mod generator_constants;
 mod image;
 mod mock_sources;
 mod speech;
@@ -26,7 +27,7 @@ fn main() -> Result<()> {
 
 fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     if args.tts {
-        let output_path = std::path::Path::new(&args.path).join("tts");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_SPEECH);
         let output_path = output_path.to_str().unwrap();
 
         if let Some(selected_lang) = &args.lang {
@@ -38,12 +39,12 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     }
 
     if args.string {
-        let output_path = std::path::Path::new(&args.path).join("texts");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_TEXTS);
         text::generate_texts(output_path.to_str().unwrap())?;
     }
 
     if args.image {
-        let output_path = std::path::Path::new(&args.path).join("images");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
     }
 

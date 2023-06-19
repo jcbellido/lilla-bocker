@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use strum::{EnumCount, EnumIter};
 
 mod image_size;
 mod page_range;
@@ -6,7 +7,7 @@ mod page_range;
 pub use self::image_size::ImageSize;
 pub use self::page_range::PageRange;
 
-#[derive(Clone, Debug, ValueEnum)]
+#[derive(Clone, Debug, ValueEnum, EnumIter, EnumCount, PartialEq, Eq, Hash)]
 pub enum Language {
     English,
     Spanish,
