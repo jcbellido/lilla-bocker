@@ -1,9 +1,9 @@
 use anyhow::Result;
 use clap::Parser;
 
-// use flipbook;
 mod args;
 mod image;
+mod mock_sources;
 mod speech;
 mod text;
 
@@ -18,6 +18,13 @@ fn main() -> Result<()> {
 
     std::fs::create_dir_all(&args.path)?;
 
+    generate_assets(&args)?;
+
+    tracing::info!("Finished, assets generated under `{}`", args.path);
+    Ok(())
+}
+
+fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     if args.tts {
         let output_path = std::path::Path::new(&args.path).join("tts");
         let output_path = output_path.to_str().unwrap();
@@ -39,6 +46,6 @@ fn main() -> Result<()> {
         let output_path = std::path::Path::new(&args.path).join("images");
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
     }
-    tracing::info!("Finished, assets generated under `{}`", args.path);
+
     Ok(())
 }

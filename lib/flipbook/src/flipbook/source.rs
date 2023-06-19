@@ -53,6 +53,7 @@ pub struct SourcePage {
     pub text: Option<PageText>,
 }
 
+/// Root V1 source structure
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct FlipbookSource {
     pub version: MetadataVersion,

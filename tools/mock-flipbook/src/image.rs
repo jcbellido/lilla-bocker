@@ -81,5 +81,5 @@ fn my_view(app: &App, model: &Model, frame: Frame) {
 fn captured_frame_path(model: &Model, frame: &Frame) -> std::path::PathBuf {
     std::path::Path::new(&model.extra.path)
         .join(format!("{:03}", frame.nth()))
-        .with_extension("png")
+        .with_extension("jpg")
 }
