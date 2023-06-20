@@ -71,7 +71,7 @@ fn reencode(path: &str) -> Result<()> {
             tracing::debug!("Processing `{:#?}`", path);
             // ffmpeg -i Swedish_000.aiff -vn -acodec libvorbis  Swedish_000.ogg
             let mut new_path = path.clone();
-            new_path.set_extension("ogg");
+            new_path.set_extension(crate::generator_constants::SPEECH_EXT);
 
             let output = Command::new("ffmpeg")
                 .arg("-y")

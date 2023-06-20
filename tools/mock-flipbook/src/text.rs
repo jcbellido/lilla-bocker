@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::args::Language;
 
@@ -8,7 +8,7 @@ pub mod english;
 pub mod spanish;
 pub mod swedish;
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Line {
     pub text: String,
 }

@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use strum::{EnumCount, EnumIter};
 
 mod image_size;
 mod page_range;
@@ -6,7 +7,7 @@ mod page_range;
 pub use self::image_size::ImageSize;
 pub use self::page_range::PageRange;
 
-#[derive(Clone, Debug, ValueEnum)]
+#[derive(Clone, Debug, ValueEnum, EnumIter, EnumCount, PartialEq, Eq, Hash)]
 pub enum Language {
     English,
     Spanish,
@@ -43,4 +44,9 @@ pub struct Args {
     /// Specify the sizes of the mock images you want, ie: "640,480"
     #[arg(long, default_value_t = ImageSize::default())]
     pub image_size: ImageSize,
+
+    // Compilation options
+    /// How many books do you want to generate with the assets inside {path}?
+    #[arg(short, long, default_value_t = 0)]
+    pub num_flipbooks: u32,
 }

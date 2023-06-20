@@ -1,9 +1,10 @@
 use anyhow::Result;
 use clap::Parser;
 
-// use flipbook;
 mod args;
+mod generator_constants;
 mod image;
+mod mock_sources;
 mod speech;
 mod text;
 
@@ -18,8 +19,15 @@ fn main() -> Result<()> {
 
     std::fs::create_dir_all(&args.path)?;
 
+    generate_assets(&args)?;
+
+    tracing::info!("Finished, assets generated under `{}`", args.path);
+    Ok(())
+}
+
+fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     if args.tts {
-        let output_path = std::path::Path::new(&args.path).join("tts");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_SPEECH);
         let output_path = output_path.to_str().unwrap();
 
         if let Some(selected_lang) = &args.lang {
@@ -31,14 +39,31 @@ fn main() -> Result<()> {
     }
 
     if args.string {
-        let output_path = std::path::Path::new(&args.path).join("texts");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_TEXTS);
         text::generate_texts(output_path.to_str().unwrap())?;
     }
 
     if args.image {
-        let output_path = std::path::Path::new(&args.path).join("images");
+        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
     }
-    tracing::info!("Finished, assets generated under `{}`", args.path);
+
+    if args.num_flipbooks > 0 {
+        let catalog = mock_sources::MockCatalog::new(&args.path)?;
+        let dir_flipbook =
+            std::path::Path::new(&args.path).join(generator_constants::DIR_FLIPBOOKS);
+        std::fs::create_dir_all(&dir_flipbook)?;
+        for book_number in 0..args.num_flipbooks {
+            let path_metadata = dir_flipbook.join(format!("fb_{:03}.json", book_number));
+            let path_bin = dir_flipbook.join(format!("fb_{:03}.bin", book_number));
+
+            flipbook::compile::compile(
+                &catalog.build_flipbook(&args.pages),
+                &path_metadata.to_str().unwrap(),
+                &path_bin.to_str().unwrap(),
+            )?;
+        }
+    }
+
     Ok(())
 }
