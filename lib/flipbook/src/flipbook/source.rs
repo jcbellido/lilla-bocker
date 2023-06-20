@@ -8,13 +8,13 @@ use serde::{Deserialize, Serialize};
 use super::common::{FilePath, LanguageCode, MetadataVersion, RawString};
 
 /// This structure points at the idea that audio is secondary to text
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Asset {
     pub text: RawString,
     pub audio: Option<Audio>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct PageText(pub HashMap<LanguageCode, Asset>);
 
 impl PageText {
