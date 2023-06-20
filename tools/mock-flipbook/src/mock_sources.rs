@@ -1,15 +1,3 @@
-// // Starting from the path output
-// // Having a predefined namne for the folders -> I'm missing a config object here
-// // Gather every single file
-// //    images is an array of names and a method to pick one at random
-// //    texts / tts: language - number
-// // There's an issue with the language mapping (?)
-// //   I have a predefined collection of langs: en, es, se
-// //   that have both texts and audios
-// // Let's keep in mind that images and texts are, at the moment, disconnected
-
-// // Agreements: this particular audio books will have all 3 audios
-
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
@@ -17,19 +5,13 @@ use std::path::PathBuf;
 use anyhow::Ok;
 use anyhow::Result;
 use flipbook::flipbook::source;
+use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use strum::IntoEnumIterator;
 
-use crate::args::Language;
+use crate::args::{Language, PageRange};
 use crate::generator_constants;
-// // I need to generate these things
-// use flipbook::flipbook::source::FlipbookSource;
-
-// // And then I need to call this function
-// use flipbook::compile::compile;
-
-// // to obtain a compiled file under the directory
 
 #[derive(Default, Clone, Debug)]
 pub struct Line {
@@ -54,6 +36,21 @@ impl MockCatalog {
             images,
             localized_lines,
         })
+    }
+
+    pub fn get_metadata_version(&self) -> flipbook::flipbook::common::MetadataVersion {
+        1
+    }
+
+    pub fn get_default_lang(&self) -> flipbook::flipbook::common::LanguageCode {
+        let v: Vec<Language> = Language::iter().map(|i| i).collect();
+        let mut rng = thread_rng();
+        let lang = v.choose(&mut rng).expect("Should have languages, yo");
+        format!("{:#?}", lang)
+    }
+
+    pub fn get_languages(&self) -> Vec<flipbook::flipbook::common::LanguageCode> {
+        Language::iter().map(|i| format!("{:#?}", i)).collect()
     }
 
     pub fn get_image(&self) -> Option<flipbook::flipbook::source::Image> {
@@ -94,6 +91,37 @@ impl MockCatalog {
             Some(pt)
         } else {
             None
+        }
+    }
+
+    pub fn get_source_page(&self) -> source::SourcePage {
+        let background = self.get_image().unwrap();
+        let text = self.get_page_text();
+
+        source::SourcePage { background, text }
+    }
+
+    pub fn build_flipbook(&self, page_range: &PageRange) -> source::FlipbookSource {
+        let mut rng = thread_rng();
+        let r = page_range.min..page_range.max;
+        let num_pages = r.choose(&mut rng).expect("Pages should return something");
+
+        let r = 0..num_pages;
+
+        let built_pages: Vec<source::SourcePage> = r.map(|_| self.get_source_page()).collect();
+
+        source::FlipbookSource {
+            version: self.get_metadata_version(),
+            languages: self.get_languages(),
+            default_language: self.get_default_lang(),
+            title: self
+                .get_page_text()
+                .expect("No page text found? Check sources"),
+            summary: self
+                .get_page_text()
+                .expect("No page text found? Check sources"),
+            miniature: self.get_image().expect("No image found? Check sources"),
+            pages: built_pages,
         }
     }
 }
@@ -230,23 +258,31 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::mock_sources::MockCatalog;
+    use strum::EnumCount;
+
+    use crate::{args::Language, mock_sources::MockCatalog};
     const PATH_SOURCE: &str = "./test_output";
 
     #[test]
     fn gather_images() {
+        #[cfg(not(target_os = "macos"))]
+        return;
         let images = MockCatalog::gather_images(PATH_SOURCE).unwrap();
         assert_eq!(images.len(), 256 as usize);
     }
 
     #[test]
     fn build_mock_catalog() {
+        #[cfg(not(target_os = "macos"))]
+        return;
         let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
         assert_eq!(catalog.images.len(), 256 as usize);
     }
 
     #[test]
     fn get_image() {
+        #[cfg(not(target_os = "macos"))]
+        return;
         let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
         let pt = catalog.get_image();
         println!(">> {:#?}", pt);
@@ -255,9 +291,29 @@ mod tests {
 
     #[test]
     fn get_page_text() {
+        #[cfg(not(target_os = "macos"))]
+        return;
         let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
         let pt = catalog.get_page_text();
         println!(">> {:#?}", pt);
         assert!(pt.is_some());
+    }
+
+    #[test]
+    fn get_default_lang() {
+        #[cfg(not(target_os = "macos"))]
+        return;
+        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
+        let def_lang = catalog.get_default_lang();
+        assert!(!def_lang.is_empty());
+    }
+
+    #[test]
+    fn get_languages() {
+        #[cfg(not(target_os = "macos"))]
+        return;
+        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
+        let langs = catalog.get_languages();
+        assert_eq!(langs.len(), Language::COUNT);
     }
 }

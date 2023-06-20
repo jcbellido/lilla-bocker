@@ -48,5 +48,22 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
     }
 
+    if args.num_flipbooks > 0 {
+        let catalog = mock_sources::MockCatalog::new(&args.path)?;
+        let dir_flipbook =
+            std::path::Path::new(&args.path).join(generator_constants::DIR_FLIPBOOKS);
+        std::fs::create_dir_all(&dir_flipbook)?;
+        for book_number in 0..args.num_flipbooks {
+            let path_metadata = dir_flipbook.join(format!("fb_{:03}.json", book_number));
+            let path_bin = dir_flipbook.join(format!("fb_{:03}.bin", book_number));
+
+            flipbook::compile::compile(
+                &catalog.build_flipbook(&args.pages),
+                &path_metadata.to_str().unwrap(),
+                &path_bin.to_str().unwrap(),
+            )?;
+        }
+    }
+
     Ok(())
 }
