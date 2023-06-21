@@ -1,0 +1,15 @@
+[package]
+name = "trivial_file_server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6.15"
+
+# TODO reduce this feature set
+tokio = { version = "1.27.0", features = ["full"] }
+tower = { version = "0.4.13" }
+tower-http = { version = "0.4.0", features = ["fs", "trace"] }
+
+tracing = "0.1.37"
+tracing-subscriber = { version = "0.3.16" }
