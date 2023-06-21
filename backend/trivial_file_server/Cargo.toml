@@ -2,11 +2,14 @@
 name = "trivial_file_server"
 version = "0.1.0"
 edition = "2021"
+description = "Starts a file server through HTTP"
 
 [dependencies]
+anyhow = "1.0.71"
 axum = "0.6.15"
 
-# TODO reduce this feature set
+clap = { version = "4.2.7", features = [ "derive"] }
+
 tokio = { version = "1.27.0", features = ["full"] }
 tower = { version = "0.4.13" }
 tower-http = { version = "0.4.0", features = ["fs", "trace"] }

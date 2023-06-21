@@ -10,7 +10,6 @@ anyhow = "1.0.71"
 
 clap = { version = "4.2.7", features = [ "derive"] }
 
-fake = "2.6.1"
 flipbook = { path = "../../lib/flipbook" }
 
 nannou = "0.18.1"

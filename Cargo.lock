@@ -717,16 +717,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fake"
-version = "2.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a44c765350db469b774425ff1c833890b16ceb9612fb5d7c4bbdf4a1b55f876"
-dependencies = [
- "rand 0.8.5",
- "unidecode",
-]
-
-[[package]]
 name = "find_folder"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1480,7 +1470,6 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "fake",
  "flipbook",
  "nannou",
  "rand 0.8.5",
@@ -2677,7 +2666,9 @@ dependencies = [
 name = "trivial_file_server"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum",
+ "clap",
  "tokio",
  "tower",
  "tower-http",
@@ -2717,12 +2708,6 @@ name = "unicode-width"
 version = "0.1.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
-
-[[package]]
-name = "unidecode"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "402bb19d8e03f1d1a7450e2bd613980869438e0666331be3e073089124aa1adc"
 
 [[package]]
 name = "utf8parse"
