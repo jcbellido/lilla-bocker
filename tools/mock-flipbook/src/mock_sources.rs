@@ -53,11 +53,22 @@ impl MockCatalog {
         Language::iter().map(|i| format!("{:#?}", i)).collect()
     }
 
-    pub fn get_image(&self) -> Option<flipbook::flipbook::source::Image> {
+    pub fn get_image(&self) -> Option<source::Image> {
         let mut rng = thread_rng();
         if let Some(pb) = self.images.choose(&mut rng) {
             let Some(pb) = pb.to_str() else { return None;};
-            Some(flipbook::flipbook::source::Image {
+            Some(source::Image {
+                path: pb.to_string(),
+            })
+        } else {
+            None
+        }
+    }
+
+    pub fn get_image_n(&self, page_n: usize) -> Option<source::Image> {
+        if let Some(pb) = self.images.get(page_n) {
+            let Some(pb) = pb.to_str() else { return None;};
+            Some(source::Image {
                 path: pb.to_string(),
             })
         } else {
@@ -94,8 +105,8 @@ impl MockCatalog {
         }
     }
 
-    pub fn get_source_page(&self) -> source::SourcePage {
-        let background = self.get_image().unwrap();
+    pub fn get_source_page_n(&self, page_n: usize) -> source::SourcePage {
+        let background = self.get_image_n(page_n).unwrap();
         let text = self.get_page_text();
 
         source::SourcePage { background, text }
@@ -108,7 +119,8 @@ impl MockCatalog {
 
         let r = 0..num_pages;
 
-        let built_pages: Vec<source::SourcePage> = r.map(|_| self.get_source_page()).collect();
+        let built_pages: Vec<source::SourcePage> =
+            r.map(|i| self.get_source_page_n(i as usize)).collect();
 
         source::FlipbookSource {
             version: self.get_metadata_version(),

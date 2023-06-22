@@ -27,6 +27,7 @@ fn main() -> Result<()> {
 
 fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     if args.tts {
+        tracing::info!("TTS generation");
         let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_SPEECH);
         let output_path = output_path.to_str().unwrap();
 
@@ -36,19 +37,28 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
         } else {
             speech::generate_all_languages(output_path)?;
         }
+    } else {
+        tracing::info!("Skipping TTS generation");
     }
 
     if args.string {
+        tracing::info!("String generation");
         let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_TEXTS);
         text::generate_texts(output_path.to_str().unwrap())?;
+    } else {
+        tracing::info!("Skipping string generation");
     }
 
     if args.image {
+        tracing::info!("Image generation");
         let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
+    } else {
+        tracing::info!("Skipping image generation");
     }
 
     if args.num_flipbooks > 0 {
+        tracing::info!("Flipbook generation");
         let catalog = mock_sources::MockCatalog::new(&args.path)?;
         let dir_flipbook =
             std::path::Path::new(&args.path).join(generator_constants::DIR_FLIPBOOKS);
@@ -63,6 +73,8 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
                 &path_bin.to_str().unwrap(),
             )?;
         }
+    } else {
+        tracing::info!("Skipping flipbook generation");
     }
 
     Ok(())
