@@ -69,7 +69,7 @@ fn reencode(path: &str) -> Result<()> {
         let path = entry.path();
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("aiff") {
             tracing::debug!("Processing `{:#?}`", path);
-            // ffmpeg -i Swedish_000.aiff -vn -acodec libvorbis  Swedish_000.ogg
+            // ffmpeg -i Swedish_000.aiff -vn -acodec libvorbis  Swedish_000.mp3
             let mut new_path = path.clone();
             new_path.set_extension(crate::generator_constants::SPEECH_EXT);
 
@@ -79,7 +79,7 @@ fn reencode(path: &str) -> Result<()> {
                 .arg(path)
                 .arg("-vn")
                 .arg("-acodec")
-                .arg("libvorbis")
+                .arg("mp3")
                 .arg(new_path)
                 .output()?;
 
