@@ -6,6 +6,7 @@ use axum::{extract::State, routing::get, Json, Router};
 use clap::Parser;
 use flipbook::flipbook::package::FlipbookPackage;
 use serde::Serialize;
+use tower_http::compression::CompressionLayer;
 use tower_http::services::ServeDir;
 
 mod args;
@@ -42,6 +43,7 @@ async fn main() -> Result<()> {
             ServeDir::new(std::path::PathBuf::from(args.serve)),
         )
         .route("/api/all-v1", get(all_v1))
+        .layer(CompressionLayer::new())
         .with_state(shared_state)
         .into_make_service();
 
