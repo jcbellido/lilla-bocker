@@ -1,0 +1,31 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="rnd-flipbook"
+run/main_scene="res://scenes/scn_main.tscn"
+config/features=PackedStringArray("4.1", "Mobile")
+boot_splash/image="res://images/temp_loading_splash.png"
+config/icon="res://icon.svg"
+
+[autoload]
+
+CONSTANTS="*res://autoloads/constants.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/resizable=false
+
+[rendering]
+
+renderer/rendering_method="mobile"
