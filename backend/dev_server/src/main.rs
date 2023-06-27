@@ -97,6 +97,6 @@ async fn gather_all_metadata(state: Arc<AppState>) -> Result<Json<AllFlipbooks>,
 
         payload.push(flipbook);
     }
-
+    tracing::info!("Gathered `{}` flipbooks", payload.len());
     Ok(Json(AllFlipbooks { payload }))
 }
