@@ -1,3 +1,9 @@
 [workspace]
-members = ["lib/flipbook", "tools/mock-flipbook", "backend/trivial_file_server"]
+members = [
+    "lib/flipbook",
+    "tools/mock-flipbook",
+    "backend/trivial_file_server",
+    "backend/dev_server"
+]
+
 resolver = "2"
