@@ -1,2 +1,5 @@
 # Godot 4+ specific ignores
 .godot/
+
+# [jcb] Not sure this should be included in the repository
+android/
