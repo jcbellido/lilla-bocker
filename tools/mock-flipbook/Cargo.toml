@@ -11,6 +11,7 @@ anyhow = "1.0.71"
 clap = { version = "4.2.7", features = [ "derive"] }
 
 flipbook = { path = "../../lib/flipbook" }
+image = "0.24.6"
 
 nannou = "0.18.1"
 

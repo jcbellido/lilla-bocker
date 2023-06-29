@@ -1,9 +1,13 @@
+use std::path::PathBuf;
+
 use anyhow::Result;
 use clap::Parser;
 
 mod args;
+mod fs;
 mod generator_constants;
 mod image;
+mod miniature;
 mod mock_sources;
 mod speech;
 mod text;
@@ -53,13 +57,16 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
         tracing::info!("Image generation");
         let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
         image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
+        let miniatures_path =
+            std::path::Path::new(&args.path).join(generator_constants::DIR_MINIATURES);
+        miniature::generate_miniatures(&output_path, &miniatures_path)?;
     } else {
         tracing::info!("Skipping image generation");
     }
 
     if args.num_flipbooks > 0 {
         tracing::info!("Flipbook generation");
-        let catalog = mock_sources::MockCatalog::new(&args.path)?;
+        let catalog = mock_sources::MockCatalog::new(PathBuf::from(&args.path))?;
         let dir_flipbook =
             std::path::Path::new(&args.path).join(generator_constants::DIR_FLIPBOOKS);
         std::fs::create_dir_all(&dir_flipbook)?;

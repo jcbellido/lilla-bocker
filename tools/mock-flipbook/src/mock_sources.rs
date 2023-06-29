@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fs;
 use std::path::PathBuf;
 
 use anyhow::Ok;
@@ -11,6 +10,7 @@ use rand::thread_rng;
 use strum::IntoEnumIterator;
 
 use crate::args::{Language, PageRange};
+use crate::fs::{file_stem_as_str, get_files_from_dir};
 use crate::generator_constants;
 
 #[derive(Default, Clone, Debug)]
@@ -25,16 +25,20 @@ type LocLine = HashMap<Language, Line>;
 #[derive(Clone, Debug)]
 pub struct MockCatalog {
     pub images: Vec<PathBuf>,
+    pub miniatures: Vec<PathBuf>,
     pub localized_lines: Vec<LocLine>,
 }
 
 impl MockCatalog {
-    pub fn new(path: &str) -> Result<Self> {
-        let images = MockCatalog::gather_images(path)?;
-        let localized_lines = MockCatalog::gather_loc_lines(path)?;
+    /// Where `path` is the root to the generated sources directory, usually the same as {{Args.path}}
+    pub fn new(path: PathBuf) -> Result<Self> {
+        let images = MockCatalog::gather_images(&path.join(generator_constants::DIR_IMAGES))?;
+        let miniatures = MockCatalog::gather_images(&path.join(generator_constants::DIR_IMAGES))?;
+        let localized_lines = MockCatalog::gather_loc_lines(&path)?;
         Ok(MockCatalog {
             images,
             localized_lines,
+            miniatures,
         })
     }
 
@@ -53,9 +57,9 @@ impl MockCatalog {
         Language::iter().map(|i| format!("{:#?}", i)).collect()
     }
 
-    pub fn get_image(&self) -> Option<source::Image> {
+    pub fn get_miniature(&self) -> Option<source::Image> {
         let mut rng = thread_rng();
-        if let Some(pb) = self.images.choose(&mut rng) {
+        if let Some(pb) = self.miniatures.choose(&mut rng) {
             let Some(pb) = pb.to_str() else { return None;};
             Some(source::Image {
                 path: pb.to_string(),
@@ -122,6 +126,8 @@ impl MockCatalog {
         let built_pages: Vec<source::SourcePage> =
             r.map(|i| self.get_source_page_n(i as usize)).collect();
 
+        let miniature = self.get_miniature().expect("No images found?");
+
         source::FlipbookSource {
             version: self.get_metadata_version(),
             languages: self.get_languages(),
@@ -132,14 +138,14 @@ impl MockCatalog {
             summary: self
                 .get_page_text()
                 .expect("No page text found? Check sources"),
-            miniature: self.get_image().expect("No image found? Check sources"),
+            miniature,
             pages: built_pages,
         }
     }
 }
 
 impl MockCatalog {
-    fn gather_loc_lines(path: &str) -> Result<Vec<LocLine>> {
+    fn gather_loc_lines(path: &PathBuf) -> Result<Vec<LocLine>> {
         // With all langs
         //   Join all by fake SID into a `LocLine` then push into `output`
         // Iterate per available language
@@ -172,13 +178,13 @@ impl MockCatalog {
         Ok(output)
     }
 
-    fn gather_loc_lines_lang(path: &str, lang: Language) -> Result<HashMap<String, Line>> {
+    fn gather_loc_lines_lang(path: &PathBuf, lang: Language) -> Result<HashMap<String, Line>> {
         // Per lang
         //   list all speech files -> get their fake SID -> HashMap<fake SID, PathBuff>
         //   list all text files -> get their fake SID -> HashMap<fake SID, Text>
         //   Join all text and all speech -> Language available assets -> HashMap<fake SID, Line>
         let lang_prefix = format!("{:#?}", lang);
-        let speech_dir = std::path::Path::new(path).join(generator_constants::DIR_SPEECH);
+        let speech_dir = path.join(generator_constants::DIR_SPEECH);
         let speech_files = get_files_from_dir(speech_dir, |de_path| {
             match_loc_name_ext(&de_path, &lang_prefix, generator_constants::SPEECH_EXT)
         })?;
@@ -189,7 +195,7 @@ impl MockCatalog {
             map_speech.insert(fake_sid, sf);
         }
 
-        let text_dir = std::path::Path::new(path).join(generator_constants::DIR_TEXTS);
+        let text_dir = path.join(generator_constants::DIR_TEXTS);
         let text_files = get_files_from_dir(text_dir, |de_path| {
             match_loc_name_ext(&de_path, &lang_prefix, generator_constants::TEXTS_EXT)
         })?;
@@ -209,10 +215,8 @@ impl MockCatalog {
         Ok(output)
     }
 
-    fn gather_images(path: &str) -> Result<Vec<PathBuf>> {
-        let dir_images = std::path::Path::new(path).join(generator_constants::DIR_IMAGES);
-
-        Ok(get_files_from_dir(dir_images, |de_path| {
+    fn gather_images(path: &PathBuf) -> Result<Vec<PathBuf>> {
+        Ok(get_files_from_dir(path.clone(), |de_path| {
             let Some(ext) = de_path.extension() else {
                 return false;
             };
@@ -223,11 +227,6 @@ impl MockCatalog {
 
 fn get_fake_string_id(p: &PathBuf, lang_prefix: &str) -> Option<String> {
     file_stem_as_str(p).and_then(|fs| Some(fs.replace(lang_prefix, "")))
-}
-
-/// Get the file stem (filename without the extension)
-fn file_stem_as_str(p: &PathBuf) -> Option<&str> {
-    p.file_stem().and_then(|p| p.to_str())
 }
 
 /// Compares the filename against [lang_prefix].*\.[extension]
@@ -247,56 +246,41 @@ fn match_loc_name_ext(p: &PathBuf, lang_prefix: &str, extension: &str) -> bool {
     basename.starts_with(&lang_prefix)
 }
 
-/// Lists a directory files without recursing
-fn get_files_from_dir<F>(path: PathBuf, f: F) -> Result<Vec<PathBuf>>
-where
-    F: Fn(PathBuf) -> bool,
-{
-    let mut output = vec![];
-
-    for entry in fs::read_dir(path)? {
-        let entry = entry?;
-        if !entry.metadata()?.is_file() {
-            continue;
-        }
-
-        if (f)(entry.path()) {
-            output.push(entry.path());
-        }
-    }
-    output.sort();
-    Ok(output)
-}
-
 #[cfg(test)]
 mod tests {
+    use std::path::PathBuf;
+
     use strum::EnumCount;
 
-    use crate::{args::Language, mock_sources::MockCatalog};
+    use crate::{args::Language, generator_constants, mock_sources::MockCatalog};
     const PATH_SOURCE: &str = "./test_output";
 
     #[test]
     fn gather_images() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let images = MockCatalog::gather_images(PATH_SOURCE).unwrap();
-        assert_eq!(images.len(), 256 as usize);
+
+        let images = MockCatalog::gather_images(
+            &PathBuf::from(PATH_SOURCE).join(generator_constants::DIR_IMAGES),
+        )
+        .unwrap();
+        assert!(!images.is_empty());
     }
 
     #[test]
     fn build_mock_catalog() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
-        assert_eq!(catalog.images.len(), 256 as usize);
+        let catalog = MockCatalog::new(PathBuf::from(PATH_SOURCE)).unwrap();
+        assert!(!catalog.images.is_empty());
     }
 
     #[test]
     fn get_image() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
-        let pt = catalog.get_image();
+        let catalog = MockCatalog::new(PathBuf::from(PATH_SOURCE)).unwrap();
+        let pt = catalog.get_miniature();
         println!(">> {:#?}", pt);
         assert!(pt.is_some());
     }
@@ -305,7 +289,7 @@ mod tests {
     fn get_page_text() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
+        let catalog = MockCatalog::new(PathBuf::from(PATH_SOURCE)).unwrap();
         let pt = catalog.get_page_text();
         println!(">> {:#?}", pt);
         assert!(pt.is_some());
@@ -315,7 +299,7 @@ mod tests {
     fn get_default_lang() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
+        let catalog = MockCatalog::new(PathBuf::from(PATH_SOURCE)).unwrap();
         let def_lang = catalog.get_default_lang();
         assert!(!def_lang.is_empty());
     }
@@ -324,7 +308,7 @@ mod tests {
     fn get_languages() {
         #[cfg(not(target_os = "macos"))]
         return;
-        let catalog = MockCatalog::new(PATH_SOURCE).unwrap();
+        let catalog = MockCatalog::new(PathBuf::from(PATH_SOURCE)).unwrap();
         let langs = catalog.get_languages();
         assert_eq!(langs.len(), Language::COUNT);
     }

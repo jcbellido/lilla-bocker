@@ -14,7 +14,7 @@ pub enum Language {
     Swedish,
 }
 
-#[derive(Parser, Debug)]
+#[derive(Clone, Debug, Parser)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
     /// Path used to store the raw assets and the generated mock - flipbooks
