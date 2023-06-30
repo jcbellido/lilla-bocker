@@ -12,7 +12,7 @@ mod mock_sources;
 mod speech;
 mod text;
 
-use args::Args;
+use args::{Args, PageRange};
 
 fn main() -> Result<()> {
     let args = Args::parse();
@@ -55,27 +55,47 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
 
     if args.image {
         tracing::info!("Image generation");
-        let output_path = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
-        image::build_images(output_path.to_str().unwrap(), &args.image_size, &args.pages)?;
-        let miniatures_path =
+        let path_images = std::path::Path::new(&args.path).join(generator_constants::DIR_IMAGES);
+        let path_miniatures =
             std::path::Path::new(&args.path).join(generator_constants::DIR_MINIATURES);
-        miniature::generate_miniatures(&output_path, &miniatures_path)?;
+        let r = image::build_images(
+            path_images.to_str().unwrap(),
+            path_miniatures.to_str().unwrap(),
+            &args.image_size,
+            &args.pages,
+            args.num_flipbooks,
+            args.path.clone(),
+        );
+        tracing::info!(">>> {:#?}", r);
     } else {
         tracing::info!("Skipping image generation");
+        generate_flipbooks(
+            args.num_flipbooks,
+            std::path::PathBuf::from(&args.path),
+            args.pages.clone(),
+        )?;
     }
 
-    if args.num_flipbooks > 0 {
+    Ok(())
+}
+
+pub fn generate_flipbooks(
+    num_flipbooks: u32,
+    path_output: PathBuf,
+    page_range: PageRange,
+) -> Result<()> {
+    if num_flipbooks > 0 {
         tracing::info!("Flipbook generation");
-        let catalog = mock_sources::MockCatalog::new(PathBuf::from(&args.path))?;
+        let catalog = mock_sources::MockCatalog::new(path_output.clone())?;
         let dir_flipbook =
-            std::path::Path::new(&args.path).join(generator_constants::DIR_FLIPBOOKS);
+            std::path::Path::new(&path_output).join(generator_constants::DIR_FLIPBOOKS);
         std::fs::create_dir_all(&dir_flipbook)?;
-        for book_number in 0..args.num_flipbooks {
+        for book_number in 0..num_flipbooks {
             let path_metadata = dir_flipbook.join(format!("fb_{:03}.json", book_number));
             let path_bin = dir_flipbook.join(format!("fb_{:03}.bin", book_number));
 
             flipbook::compile::compile(
-                &catalog.build_flipbook(&args.pages),
+                &catalog.build_flipbook(&page_range),
                 &path_metadata.to_str().unwrap(),
                 &path_bin.to_str().unwrap(),
             )?;
@@ -83,6 +103,5 @@ fn generate_assets(args: &Args) -> Result<(), anyhow::Error> {
     } else {
         tracing::info!("Skipping flipbook generation");
     }
-
     Ok(())
 }

@@ -19,11 +19,11 @@ pub fn generate_miniatures(sources: &PathBuf, target: &PathBuf) -> Result<()> {
     if existing_images.is_empty() {
         tracing::warn!("No images found to generate miniatures of");
     }
-
+    std::fs::create_dir_all(target)?;
     for pb_img in existing_images {
         build_miniature(pb_img, target)?;
     }
-
+    tracing::info!("miniatures generation finished");
     Ok(())
 }
 

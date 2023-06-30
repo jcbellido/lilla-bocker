@@ -6,7 +6,10 @@ use crate::args::{ImageSize, PageRange};
 pub struct NannouExtraParameters {
     pub page_range: PageRange,
     pub image_size: ImageSize,
-    pub path: String,
+    pub path_images: String,
+    pub path_miniatures: String,
+    pub num_flipbooks: u32,
+    pub path_output: String,
 }
 
 #[derive(Clone, Debug)]

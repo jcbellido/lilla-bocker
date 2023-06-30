@@ -20,22 +20,33 @@ use model::*;
 
 static NANNOU_EXTRA_PARAMETERS: OnceLock<NannouExtraParameters> = OnceLock::new();
 
-pub fn build_images(path: &str, image_size: &ImageSize, page_range: &PageRange) -> Result<()> {
-    tracing::info!("Starting rendering: output path {:#?}", path);
+pub fn build_images(
+    path_images: &str,
+    path_miniatures: &str,
+    image_size: &ImageSize,
+    page_range: &PageRange,
+    num_flipbooks: u32,
+    path_output: String,
+) -> Result<()> {
+    tracing::info!("Starting rendering: output path {:#?}", path_images);
     tracing::info!("Starting rendering: {:#?}", image_size);
 
     let extra_params = NannouExtraParameters {
-        path: path.to_string(),
+        path_images: path_images.to_string(),
+        path_miniatures: path_miniatures.to_string(),
         image_size: image_size.clone(),
         page_range: page_range.clone(),
+        num_flipbooks,
+        path_output,
     };
 
     NANNOU_EXTRA_PARAMETERS
         .set(extra_params)
         .expect("Error initializing nannou's extra parameters");
 
-    nannou::app(model).update(update).run();
-
+    tracing::info!("Starting nannou ...");
+    nannou::app(model).update(update).exit(exit).run();
+    tracing::info!("... nannou stopped");
     Ok(())
 }
 
@@ -62,10 +73,31 @@ fn model(app: &App) -> Model {
     }
 }
 
+fn exit(_app: &App, model: Model) {
+    tracing::info!("nannou's exit function called");
+
+    let source = std::path::PathBuf::from(model.extra.path_images);
+    let target = std::path::PathBuf::from(model.extra.path_miniatures);
+    crate::miniature::generate_miniatures(&source, &target)
+        .expect("miniatures generation failed!?");
+    let path_output = std::path::PathBuf::from(model.extra.path_output);
+    crate::generate_flipbooks(
+        model.extra.num_flipbooks,
+        path_output,
+        model.extra.page_range,
+    )
+    .expect("Error generating flipbooks");
+}
+
 fn update(app: &App, model: &mut Model, _update: Update) {
     model.update_number += 1;
     if model.update_number > model.extra.page_range.max as usize {
+        tracing::info!("Awaiting for all jobs to finish");
+        app.main_window()
+            .await_capture_frame_jobs()
+            .expect("Error waiting for capture frame jobs");
         app.quit();
+        tracing::info!("Quit executed");
     }
 }
 
@@ -79,7 +111,7 @@ fn my_view(app: &App, model: &Model, frame: Frame) {
 }
 
 fn captured_frame_path(model: &Model, frame: &Frame) -> std::path::PathBuf {
-    std::path::Path::new(&model.extra.path)
+    std::path::Path::new(&model.extra.path_images)
         .join(format!("{:03}", frame.nth()))
         .with_extension(crate::generator_constants::IMAGES_EXT)
 }
