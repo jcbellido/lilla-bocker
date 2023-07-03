@@ -33,7 +33,8 @@ impl MockCatalog {
     /// Where `path` is the root to the generated sources directory, usually the same as {{Args.path}}
     pub fn new(path: PathBuf) -> Result<Self> {
         let images = MockCatalog::gather_images(&path.join(generator_constants::DIR_IMAGES))?;
-        let miniatures = MockCatalog::gather_images(&path.join(generator_constants::DIR_IMAGES))?;
+        let miniatures =
+            MockCatalog::gather_images(&path.join(generator_constants::DIR_MINIATURES))?;
         let localized_lines = MockCatalog::gather_loc_lines(&path)?;
         Ok(MockCatalog {
             images,

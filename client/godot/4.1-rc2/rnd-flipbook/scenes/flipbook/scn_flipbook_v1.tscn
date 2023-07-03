@@ -1,0 +1,42 @@
+[gd_scene load_steps=2 format=3 uid="uid://rl5ta5mibt0t"]
+
+[ext_resource type="Script" path="res://scenes/flipbook/scn_flipbook_v1.gd" id="1_k22hk"]
+
+[node name="scn_flipbook_v1" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_k22hk")
+
+[node name="HTTPRequest_json" type="HTTPRequest" parent="."]
+use_threads = true
+
+[node name="HTTPRequest_binary" type="HTTPRequest" parent="."]
+use_threads = true
+
+[node name="backdrop" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="next_page" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -824.0
+offset_top = -15.0
+offset_bottom = 16.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "Next Page"
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"VO"
+
+[connection signal="pressed" from="next_page" to="." method="_on_next_page_pressed"]
