@@ -1,6 +1,6 @@
 extends Object
 
-class_name FlipbookMetadataV1
+class_name FlipBook_V1
 
 var _from_remote: Dictionary
 var _bin: PackedByteArray
@@ -86,4 +86,5 @@ func get_summary_sid() -> String:
 
 func get_languages() -> Array:
 	return self._from_remote["languages"]
+
 

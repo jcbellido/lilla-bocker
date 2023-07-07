@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://bqffwx1fj6s46"]
+
+[ext_resource type="Script" path="res://rnd_scenes/scn_miniature.gd" id="1_bk1li"]
+[ext_resource type="Theme" uid="uid://nd3emu45e715" path="res://dev_theme.tres" id="2_bb21o"]
+
+[node name="scn_miniature" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -1440.0
+offset_bottom = -760.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_bk1li")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 480.0
+offset_bottom = 320.0
+
+[node name="miniature" type="TextureRect" parent="VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme = ExtResource("2_bb21o")
+text = "Placeholder"
+clip_text = true
+text_overrun_behavior = 3
